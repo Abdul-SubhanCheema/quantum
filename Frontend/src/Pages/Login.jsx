@@ -17,17 +17,21 @@ import {
   IconButton,
   Checkbox,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
 import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import LoginService from "../Services/loginservice";
 
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function Login() {
+  const { setAuth } = useAuth();
 
-  const{setAuth}=useAuth();
-
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || null;
+  // const location = useLocation();
+  // const from = location.state?.from?.pathname || "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,7 +50,15 @@ function Login() {
       if (emailRegex.test(email)) {
         const response = await LoginService.login(userData);
         if (response.success) {
-          setAuth({email,password});
+          // console.log("Login response:", response);
+          // console.log("User data:", response.user);
+          // console.log("User role:", response.user?.role);
+          
+          setAuth({
+            token: response.token,
+            user: response.user,
+          });
+          
           toast({
             title: "Success",
             description: "Login successfully",
@@ -57,11 +69,23 @@ function Login() {
           
           setEmail("");
           setPassword("");
+          
+          const role = response.user?.role;
+          if (role === "admin") {
+            console.log("Navigating to /admin");
+            navigate("/admin", { replace: true });
+          } else if (role === "manager") {
+            console.log("Navigating to /manager");
+            navigate("/manager", { replace: true });
+          } else {
+            console.log("Navigating to /home");
+            navigate("/home", { replace: true });
+          }
         } else {
           toast({
             title: "Error",
             description:
-            response.message || "Failed to Login. Please try again.",
+              response.message || "Failed to Login. Please try again.",
             status: "error",
             duration: 3000,
             isClosable: true,

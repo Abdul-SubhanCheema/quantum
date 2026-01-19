@@ -5,6 +5,13 @@ import Admin from "./Pages/Admin";
 import Home from "./Pages/Home";
 import Manager from "./Pages/Manager";
 import RequireAuth from "./Context/RequireAuth";
+//enum: ["manager", "admin", "user"]
+
+const Roles={
+  User:"user",
+  Manager:"manager",
+  Admin:"admin"
+}
 
 const routes = createBrowserRouter([
   {
@@ -20,7 +27,15 @@ const routes = createBrowserRouter([
       },
       {
         path:"/home",
-        element:<Home/>
+        element:<RequireAuth allowedRole={Roles.User}><Home/></RequireAuth>
+      },
+      {
+        path:"/manager",
+        element:<RequireAuth allowedRole={Roles.Manager}><Manager/></RequireAuth>
+      },
+      {
+        path:"/admin",
+        element:<RequireAuth allowedRole={Roles.Admin}><Admin/></RequireAuth>
       }
     ],
   },

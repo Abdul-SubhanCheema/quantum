@@ -17,17 +17,26 @@ const jwtMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.log(error);
+    console.log("JWT Verification Error:", error.message);
+    console.log("Token received:", token?.substring(0, 20) + "...");
+    
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired" });
+    }
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+    
     res.status(401).json({ message: "Invalid Token Found" });
   }
 };
 
 const generateToken = (userData) => {
-  return jwt.sign({userData}, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
+  return jwt.sign({userData}, process.env.JWT_SECRET_KEY, { expiresIn: "15m" });
 };
 
-module.exports = { jwtMiddleware, generateToken };
+const generateRefreshToken = (userData) => {
+  return jwt.sign({userData}, process.env.JWT_REFRESH_SECRET_KEY || process.env.JWT_SECRET_KEY, { expiresIn: "7d" });
+};
 
-
-
-module.exports={jwtMiddleware,generateToken};
+module.exports = { jwtMiddleware, generateToken, generateRefreshToken };

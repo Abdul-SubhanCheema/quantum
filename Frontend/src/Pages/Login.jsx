@@ -1,5 +1,5 @@
-import { useState ,useContext} from "react";
-import AuthContext from "../Context/AuthProvider";
+import { useState } from "react";
+import useAuth from "../Context/UseAuth";
 import {
   Box,
   Button,
@@ -26,7 +26,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function Login() {
 
-  const{setAuth}=useContext(AuthContext);
+  const{setAuth}=useAuth();
 
 
   const [email, setEmail] = useState("");
